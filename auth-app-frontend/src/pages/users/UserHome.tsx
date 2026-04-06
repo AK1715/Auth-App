@@ -12,6 +12,11 @@ export const UserHome = () => {
 
   const user = useAuth((state)=> state.user)
   const [user1, setUser1] = useState<UserT | null>(null);
+   if (!user?.email) {
+    toast.error("User not logged in or email missing");
+    return;
+  }
+
   const getUserData = async () => {
     try {
       const user1 = await getCurrentUser(user?.email);
