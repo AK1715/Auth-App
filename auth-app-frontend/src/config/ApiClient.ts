@@ -29,7 +29,7 @@ function queueRequest(cb: any){
     pending.push(cb);
 }
 
-function resloveQueue(newToken: string){
+function resolveQueue(newToken: string){
     pending.forEach((cb)=> cb(newToken));
     pending = [];
 }
@@ -77,11 +77,11 @@ apiClient.interceptors.response.use(
                 loginResponse.user,
                 true
             )
-            resloveQueue(newToken);
+            resolveQueue(newToken);
             orignal.headers.Authorization = `Bearer ${newToken}`;
             return apiClient(orignal);
     } catch (error) {
-        resloveQueue('null');
+        resolveQueue('null');
         useAuth.getState().logout();
         return Promise.reject(error);
     }finally{
