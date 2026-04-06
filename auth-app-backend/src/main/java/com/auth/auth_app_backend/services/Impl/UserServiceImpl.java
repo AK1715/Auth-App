@@ -11,6 +11,7 @@ import com.auth.auth_app_backend.services.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -43,10 +44,10 @@ public class UserServiceImpl implements UserService {
         return modelMapper.map(savedUser, UserDto.class);
     }
 
-//    @Cacheable(value = "users", key = "#email")
+//    @CachePut(value = "users", key = "#result.id")
     @Override
     public UserDto getUserByEmail(String email){
-//        System.out.println("Fetching data from database");
+        System.out.println("First email Fetching data from database");
         User user = userRepository
                 .findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with the given mail id"));
@@ -71,8 +72,10 @@ public class UserServiceImpl implements UserService {
         return modelMapper.map(updatedUser, UserDto.class);
     }
 
+//    @CacheEvict(value = "users", key = "#userId")
     @Override
     public void deleteUser(String userId){
+        System.out.println("First Fetching from DB only for testing purpose");
         UUID uId = UserHelper.parseUUID(userId);
         User user = userRepository
                 .findById(uId)
@@ -81,7 +84,7 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
-    @Cacheable(value = "users", key = "#userId")
+//    @Cacheable(value = "users", key = "#userId")
     @Override
     public UserDto getUserById(String userId){
         System.out.println("Fetching from DB only for testing purpose");

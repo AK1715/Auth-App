@@ -38,6 +38,14 @@ spring:
             scope:
               - user:email
               - read:user
+#  data:
+#    redis:
+#      host: alert-piglet-93238.upstash.io
+#      port: 6379
+#      username: default
+#      password: gQAAAAAAAWw2AAIncDFmMjI5NTcyNDNjNjE0ZWE3YTcyNzViMDM3MzY1ODNlOHAxOTMyMzg
+#      ssl:
+#        enabled: true
 
 logging:
   level:
