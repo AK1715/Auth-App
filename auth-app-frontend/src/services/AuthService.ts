@@ -1,3 +1,4 @@
+import useAuth from "@/auth/store";
 import apiClient from "@/config/ApiClient";
 import type LoginData from "@/models/LoginData";
 import type LoginResponseData from "@/models/LoginResponseData";
@@ -34,3 +35,8 @@ export const refreshToken = async () =>{
     const response = await apiClient.post<LoginResponseData>(`/auth/refresh`);
     return response.data;
 }
+
+// delete User by id
+export const deleteUserById = (userId: string) => {
+  return apiClient.delete(`/users/${userId}`);
+};
