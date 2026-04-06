@@ -3,39 +3,67 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
-import { Mail, Lock, } from "lucide-react";
-import { FaGithub, FaGoogle } from "react-icons/fa";
+import { Mail, Lock, CheckCircle2Icon, } from "lucide-react";
 import type LoginData from "@/models/LoginData";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
+import { Alert, AlertTitle } from "@/components/ui/alert";
+import { Spinner } from "@/components/ui/spinner";
+import useAuth from "@/auth/store";
+import OAuth2Buttons from "@/components/OAuth2Buttons";
 
 const Login = () => {
 
-  const [data, setData] = useState<LoginData>({
+  const [loginData, setLoginData] = useState<LoginData>({
     email: "",
     password: ""
   })
 
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [error, setError] = useState<any>(null);
+
+  const navigate = useNavigate();
+  const login = useAuth((state) => state.login);
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(data);
-      setData((value)=> ({
-        ...value,
+    // console.log(loginData);
+      setLoginData({
+        ...loginData,
         [event.target.name]: event.target.value
-      }));
+      });
   }
 
-  const handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
       event.preventDefault();
-      console.log(data);
+      console.log(loginData);
 
-      if(data.email == ''){
+      if(!loginData.email.trim()){
         toast.error("Email is Required");
         return;
       }
 
-      if(data.password == ''){
+      if(!loginData.password.trim()){
         toast.error("Password is Required");
         return;
+      }
+
+      try{
+        setLoading(true);
+        // const userInfo = await loginUser(loginData);
+
+        // login Function : useAuth
+        await login(loginData);
+
+        toast.success("User Login SuccessFully...")
+        // console.log(userInfo);
+
+        navigate("/dashboard");
+      }catch(error){
+        setError(error);
+      }finally{
+        setLoading(false);
       }
 
       
@@ -70,8 +98,21 @@ const Login = () => {
               Login to access your authentication app
             </motion.p>
 
+            {/* error section */}
+            {error && (
+              <div className="mt-6">
+                <Alert variant={"destructive"}>
+                  <CheckCircle2Icon />
+                  <AlertTitle>{error?.response 
+                    ? error?.response?.data?.message
+                    : error?.message
+                  }</AlertTitle>
+                </Alert>
+              </div>
+            )}
+
             {/* Form */}
-            <form className="mt-8 space-y-6">
+            <form onSubmit={handleFormSubmit} className="mt-8 space-y-6">
               {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -83,7 +124,7 @@ const Login = () => {
                     placeholder="you@example.com"
                     className="pl-10"
                     name="email"
-                    value={data.email}
+                    value={loginData.email}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -100,14 +141,18 @@ const Login = () => {
                     placeholder="••••••••"
                     className="pl-10"
                     name="password"
-                    value={data.password}
+                    value={loginData.password}
                     onChange={handleInputChange}
                   />
                 </div>
               </div>
 
-              <Button className="w-full cursor-pointer rounded-2xl text-lg">
-                Login
+              <Button disabled={loading} className="w-full cursor-pointer rounded-2xl text-lg">
+                {loading ? (
+                  <><Spinner /> Please wait...</>
+                  ) : (
+                    "Login"
+                )}
               </Button>
 
               {/* Divider */}
@@ -118,21 +163,8 @@ const Login = () => {
               </div>
 
               {/* OAuth Buttons */}
-              {/* <OAuth2Buttons /> */}
-              <div className="space-y-3">
-                <Button
-                  variant={"outline"}
-                  className="w-full flex items-center gap-3 rounded-2xl"
-                >
-                  <FaGoogle /> Continue with Google
-                </Button>
-                <Button
-                  variant={"outline"}
-                  className="w-full flex items-center gap-3 rounded-2xl"
-                >
-                  <FaGithub /> Continue With GitHub
-                </Button>
-              </div>
+              <OAuth2Buttons />
+              
             </form>
           </CardContent>
         </Card>
